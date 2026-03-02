@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cors());
 
-// ===== Serve Frontend (client folder) =====
+// ===== Serve Frontend =====
 app.use(express.static(path.join(__dirname, "client")));
 
 // ===== Temporary In-Memory User Storage =====
@@ -47,7 +47,7 @@ app.post("/api/auth/signup", async (req, res) => {
     res.status(201).json({ message: "Account created successfully" });
 
   } catch (error) {
-    console.error("Signup error:", error);
+    console.error(error);
     res.status(500).json({ message: "Server error during signup" });
   }
 });
@@ -81,7 +81,7 @@ app.post("/api/auth/login", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Login error:", error);
+    console.error(error);
     res.status(500).json({ message: "Server error during login" });
   }
 });

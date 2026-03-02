@@ -20,34 +20,27 @@ window.onload = function () {
 
   const form = document.getElementById("signupForm");
 
-  if (!form) return;
-
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        alert(data.message);
-        return;
-      }
-
-      alert("Account created successfully!");
-      window.location.href = "/pages/login.html";
-
-    } catch (error) {
-      alert("Server error");
+    if (!res.ok) {
+      alert(data.message);
+      return;
     }
+
+    alert("Account created successfully!");
+    window.location.href = "/pages/login.html";
   });
 
 };
