@@ -14,17 +14,14 @@
   <button type="submit">Sign Up</button>
 </form>
 
-<a href="login.html">Back to login</a>
+<a href="/pages/login.html">Back to login</a>
 
 <script>
 window.onload = function () {
 
   const form = document.getElementById("signupForm");
 
-  if (!form) {
-    console.error("Signup form not found");
-    return;
-  }
+  if (!form) return;
 
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -34,7 +31,7 @@ window.onload = function () {
     const password = document.getElementById("password").value;
 
     try {
-      const res = await fetch("https://medical-id-qr-project.onrender.com/api/auth/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password })
@@ -47,12 +44,11 @@ window.onload = function () {
         return;
       }
 
-      alert("Account created successfully!");
-      window.location.href = "login.html";
+      alert("Account created!");
+      window.location.href = "/pages/login.html";
 
     } catch (error) {
       alert("Server error");
-      console.error(error);
     }
   });
 
