@@ -1,22 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Signup</title>
-</head>
-<body>
-
-<h2>Create Account</h2>
-
-<form id="signupForm">
-  <input type="email" id="email" placeholder="Email" required />
-  <br><br>
-  <input type="password" id="password" placeholder="Password" required />
-  <br><br>
-  <button type="submit">Signup</button>
-</form>
-
-<p>Already have account? <a href="login.html">Login</a></p>
-
 <script>
 document.getElementById("signupForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -24,20 +5,28 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const res = await fetch("hthttps://medical-id-qr-project.onrender.com", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
-  });
+  try {
+    const res = await fetch("https://medical-id-qr-project.onrender.com/api/auth/signup", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json" 
+      },
+      body: JSON.stringify({ email, password })
+    });
 
-  const data = await res.json();
-  alert(data.message);
+    const data = await res.json();
 
-  if (res.ok) {
+    if (!res.ok) {
+      alert(data.message || "Signup failed");
+      return;
+    }
+
+    alert("Signup successful!");
     window.location.href = "login.html";
+
+  } catch (error) {
+    alert("Server error");
+    console.error(error);
   }
 });
 </script>
-
-</body>
-</html>
