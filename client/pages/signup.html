@@ -8,7 +8,6 @@
 <h2>Sign Up</h2>
 
 <form id="signupForm">
-  <input type="text" id="name" placeholder="Full Name" required />
   <input type="email" id="email" placeholder="Email" required />
   <input type="password" id="password" placeholder="Password" required />
   <button type="submit">Sign Up</button>
@@ -26,25 +25,24 @@ window.onload = function () {
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ email, password })
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Signup failed");
+        alert(data.message);
         return;
       }
 
-      alert("Account created!");
+      alert("Account created successfully!");
       window.location.href = "/pages/login.html";
 
     } catch (error) {
