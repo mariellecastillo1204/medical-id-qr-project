@@ -1,60 +1,65 @@
-require("dotenv").config();
-
 const express = require("express");
-const mongoose = require("mongoose");
+const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const cors = require("cors");
-
-const User = require("./models/User");
+require("dotenv").config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// ================= MIDDLEWARE =================
+// ===== Middleware =====
 app.use(express.json());
-app.use(cors());
 
-// ================= ROOT ROUTE =================
+app.use(cors({
+  origin: "*", // allow GitHub Pages
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+// ===== Temporary In-Memory User Storage =====
+// (Replace with database later)
+let users = [];
+
+// ===== Root Route (Test if backend is running) =====
 app.get("/", (req, res) => {
   res.send("Medical ID Backend is Running 🚀");
 });
 
-// ================= DATABASE =================
-// ⚠️ DO NOT replace this with your Render URL
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err));
-
-// ================= SIGNUP =================
+// ===== SIGNUP =====
 app.post("/api/auth/signup", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const existingUser = await User.findOne({ email });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
+
+    const existingUser = users.find(user => user.email === email);
     if (existingUser) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res.status(400).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({
+    users.push({
       email,
       password: hashedPassword
     });
 
-    res.json({ message: "Signup successful" });
+    res.status(201).json({ message: "Account created successfully" });
 
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Signup error:", error);
+    res.status(500).json({ message: "Server error during signup" });
   }
 });
 
-// ================= LOGIN =================
+// ===== LOGIN =====
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = users.find(user => user.email === email);
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -65,21 +70,23 @@ app.post("/api/auth/login", async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { email: user.email },
+      process.env.JWT_SECRET || "secretkey",
+      { expiresIn: "1h" }
     );
 
-    res.json({ token });
+    res.json({
+      message: "Login successful",
+      token
+    });
 
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error during login" });
   }
 });
 
-// ================= START SERVER =================
-const PORT = process.env.PORT || 5000;
-
+// ===== Start Server =====
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
