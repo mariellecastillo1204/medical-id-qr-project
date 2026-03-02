@@ -1,87 +1,125 @@
-const token = localStorage.getItem("token");
+window.onload = function () {
+  initializeDashboard();
+};
 
-if (!token) {
-  window.location.href = "login.html";
-}
+async function initializeDashboard() {
+  const token = localStorage.getItem("token");
 
-const profileView = document.getElementById("profileView");
-const form = document.getElementById("medicalForm");
-const qrImage = document.getElementById("qrImage");
-
-// LOAD PROFILE ON PAGE LOAD
-window.onload = loadProfile;
-
-async function loadProfile() {
-  const res = await fetch("https://medical-id-qr-project.onrender.com", {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-
-  const data = await res.json();
-
-  if (!data) return;
-
-  profileView.innerHTML = `
-    <h3>${data.firstName || ""} ${data.lastName || ""}</h3>
-    <p>Blood Type: ${data.bloodType || ""}</p>
-    <p>Contact: ${data.contactNumber || ""}</p>
-    <p>Emergency: ${data.emergencyFirstName || ""} ${data.emergencyLastName || ""}</p>
-    <p>Emergency Number: ${data.emergencyNumber || ""}</p>
-  `;
-
-  if (data.qrCode) {
-    qrImage.src = data.qrCode;
+  if (!token) {
+    window.location.href = "login.html";
+    return;
   }
 
-  // AUTO-FILL FORM
-  document.getElementById("firstName").value = data.firstName || "";
-  document.getElementById("lastName").value = data.lastName || "";
-  document.getElementById("bloodType").value = data.bloodType || "";
-  document.getElementById("contactNumber").value = data.contactNumber || "";
-  document.getElementById("emergencyFirstName").value = data.emergencyFirstName || "";
-  document.getElementById("emergencyLastName").value = data.emergencyLastName || "";
-  document.getElementById("emergencyNumber").value = data.emergencyNumber || "";
-  document.getElementById("allergies").value = data.allergies || "";
-  document.getElementById("medications").value = data.medications || "";
-  document.getElementById("medicalConditions").value = data.medicalConditions || "";
+  const profileView = document.getElementById("profileView");
+  const form = document.getElementById("medicalForm");
+  const qrImage = document.getElementById("qrImage");
+
+  if (!profileView || !form) {
+    console.error("Required elements not found in HTML");
+    return;
+  }
+
+  // LOAD PROFILE
+  try {
+    const res = await fetch("https://medical-id-qr-project.onrender.com/api/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch profile");
+
+    const data = await res.json();
+
+    profileView.innerHTML = `
+      <h3>${data.firstName || ""} ${data.lastName || ""}</h3>
+      <p>Blood Type: ${data.bloodType || ""}</p>
+      <p>Contact: ${data.contactNumber || ""}</p>
+      <p>Emergency: ${data.emergencyFirstName || ""} ${data.emergencyLastName || ""}</p>
+      <p>Emergency Number: ${data.emergencyNumber || ""}</p>
+    `;
+
+    if (data.qrCode && qrImage) {
+      qrImage.src = data.qrCode;
+    }
+
+    // Autofill safely
+    setValue("firstName", data.firstName);
+    setValue("lastName", data.lastName);
+    setValue("bloodType", data.bloodType);
+    setValue("contactNumber", data.contactNumber);
+    setValue("emergencyFirstName", data.emergencyFirstName);
+    setValue("emergencyLastName", data.emergencyLastName);
+    setValue("emergencyNumber", data.emergencyNumber);
+    setValue("allergies", data.allergies);
+    setValue("medications", data.medications);
+    setValue("medicalConditions", data.medicalConditions);
+
+  } catch (error) {
+    console.error(error);
+    alert("Session expired. Please login again.");
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+  }
+
+  // SAFE SUBMIT HANDLER
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const body = {
+      firstName: getValue("firstName"),
+      lastName: getValue("lastName"),
+      bloodType: getValue("bloodType"),
+      contactNumber: getValue("contactNumber"),
+      emergencyFirstName: getValue("emergencyFirstName"),
+      emergencyLastName: getValue("emergencyLastName"),
+      emergencyNumber: getValue("emergencyNumber"),
+      allergies: getValue("allergies"),
+      medications: getValue("medications"),
+      medicalConditions: getValue("medicalConditions")
+    };
+
+    try {
+      const res = await fetch("https://medical-id-qr-project.onrender.com/api/profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) throw new Error("Save failed");
+
+      alert("Profile Saved");
+      initializeDashboard();
+      form.style.display = "none";
+
+    } catch (error) {
+      console.error(error);
+      alert("Error saving profile");
+    }
+  });
+}
+
+// Helper functions (prevents null crash)
+function getValue(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : "";
+}
+
+function setValue(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = value || "";
 }
 
 function toggleEdit() {
-  form.style.display = form.style.display === "none" ? "block" : "none";
-}
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const body = {
-    firstName: firstName.value,
-    lastName: lastName.value,
-    bloodType: bloodType.value,
-    contactNumber: contactNumber.value,
-    emergencyFirstName: emergencyFirstName.value,
-    emergencyLastName: emergencyLastName.value,
-    emergencyNumber: emergencyNumber.value,
-    allergies: allergies.value,
-    medications: medications.value,
-    medicalConditions: medicalConditions.value
-  };
-
-  const res = await fetch("https://medical-id-qr-project.onrender.com", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify(body)
-  });
-
-  if (res.ok) {
-    alert("Profile Saved");
-    loadProfile();
-    form.style.display = "none";
-  } else {
-    alert("Error saving profile");
+  const form = document.getElementById("medicalForm");
+  if (form) {
+    form.style.display =
+      form.style.display === "none" ? "block" : "none";
   }
-});
+}
 
 function logout() {
   localStorage.removeItem("token");

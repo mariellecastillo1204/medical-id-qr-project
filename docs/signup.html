@@ -22,7 +22,7 @@ window.onload = function () {
   const form = document.getElementById("signupForm");
 
   if (!form) {
-    console.error("Signup form not found!");
+    console.error("Signup form not found");
     return;
   }
 
@@ -47,11 +47,12 @@ window.onload = function () {
         return;
       }
 
-      alert("Account created!");
+      alert("Account created successfully!");
       window.location.href = "login.html";
 
     } catch (error) {
       alert("Server error");
+      console.error(error);
     }
   });
 
