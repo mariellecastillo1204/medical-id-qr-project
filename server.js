@@ -14,92 +14,159 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.error("MongoDB Connection Error:", err));
 
-// ===== User Schema =====
+// ===== MODELS =====
+
+// User Model
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true }
 });
-
 const User = mongoose.model("User", userSchema);
+
+// Medical Profile Model
+const medicalProfileSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+
+  // Personal Information
+  firstName: { type: String, required: true },
+  middleName: String,
+  lastName: { type: String, required: true },
+  sex: { type: String, required: true },
+  dateOfBirth: { type: Date, required: true },
+  bloodType: { type: String, required: true },
+  contactNumber: { type: String, required: true },
+  religion: { type: String, required: true },
+
+  // Emergency Contact
+  emergencyFirstName: { type: String, required: true },
+  emergencyMiddleName: String,
+  emergencyLastName: { type: String, required: true },
+  emergencyRelationship: { type: String, required: true },
+  emergencyContactNumber: { type: String, required: true },
+
+  // Medical Info
+  allergies: { type: String, required: true },
+  medications: { type: String, required: true },
+  medicalConditions: { type: String, required: true },
+
+  pastIllness: String,
+  familyHistory: String,
+
+  philHealthNumber: String,
+  insuranceProvider: String
+
+}, { timestamps: true });
+
+const MedicalProfile = mongoose.model("MedicalProfile", medicalProfileSchema);
 
 // ===== Middleware =====
 app.use(express.json());
 app.use(cors());
-
-// ===== Serve Frontend =====
 app.use(express.static(path.join(__dirname, "client")));
 
-// ===== Root Route =====
+// ===== Auth Middleware =====
+const authMiddleware = (req, res, next) => {
+  const token = req.headers.authorization;
+
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    res.status(401).json({ message: "Invalid or expired token" });
+  }
+};
+
+// ===== Routes =====
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "client", "pages", "login.html"));
 });
 
-// ===== SIGNUP =====
+// SIGNUP
 app.post("/api/auth/signup", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password required" });
-    }
-
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
-    }
+    if (existingUser) return res.status(400).json({ message: "User already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
-      email,
-      password: hashedPassword
-    });
-
+    const newUser = new User({ email, password: hashedPassword });
     await newUser.save();
 
     res.status(201).json({ message: "Account created successfully" });
 
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error during signup" });
   }
 });
 
-// ===== LOGIN =====
+// LOGIN
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "2h" }
     );
 
-    res.json({
-      message: "Login successful",
-      token
-    });
+    res.json({ token });
 
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error during login" });
   }
 });
 
-// ===== Start Server =====
+// SAVE PROFILE
+app.post("/api/profile", authMiddleware, async (req, res) => {
+  try {
+    const existing = await MedicalProfile.findOne({ user: req.user.id });
+
+    if (existing) {
+      await MedicalProfile.findOneAndUpdate(
+        { user: req.user.id },
+        req.body,
+        { new: true }
+      );
+      return res.json({ message: "Profile updated successfully" });
+    }
+
+    const profile = new MedicalProfile({
+      ...req.body,
+      user: req.user.id
+    });
+
+    await profile.save();
+    res.json({ message: "Profile saved successfully" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Error saving profile" });
+  }
+});
+
+// GET PROFILE
+app.get("/api/profile", authMiddleware, async (req, res) => {
+  try {
+    const profile = await MedicalProfile.findOne({ user: req.user.id });
+    res.json(profile);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching profile" });
+  }
+});
+
+// START SERVER
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -1,17 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Medical ID - Dashboard</title>
+  <title>Medical Identity Dashboard</title>
 </head>
 <body>
 
-<h2>Dashboard</h2>
+<h2>Medical Identity Dashboard</h2>
 
-<p>You are logged in.</p>
+<form id="medicalForm">
 
-<button onclick="logout()">Logout</button>
+<h3>Personal Information</h3>
+<input type="text" id="firstName" placeholder="First Name *" required>
+<input type="text" id="middleName" placeholder="Middle Name">
+<input type="text" id="lastName" placeholder="Last Name *" required>
+<input type="text" id="sex" placeholder="Sex *" required>
+<input type="date" id="dateOfBirth" required>
+<input type="text" id="bloodType" placeholder="Blood Type *" required>
+<input type="text" id="contactNumber" placeholder="Contact Number *" required>
+<input type="text" id="religion" placeholder="Religion *" required>
 
-<script src="/js/dashboard.js"></script>
+<h3>Emergency Contact</h3>
+<input type="text" id="emergencyFirstName" placeholder="Emergency First Name *" required>
+<input type="text" id="emergencyMiddleName" placeholder="Emergency Middle Name">
+<input type="text" id="emergencyLastName" placeholder="Emergency Last Name *" required>
+<input type="text" id="emergencyRelationship" placeholder="Relationship *" required>
+<input type="text" id="emergencyContactNumber" placeholder="Emergency Contact Number *" required>
+
+<h3>Medical Information</h3>
+<textarea id="allergies" placeholder="Allergies * (If none, type N/A)" required></textarea>
+<textarea id="medications" placeholder="Maintenance Medications * (If none, type N/A)" required></textarea>
+<textarea id="medicalConditions" placeholder="Medical Conditions * (If none, type N/A)" required></textarea>
+
+<textarea id="pastIllness" placeholder="Past Illness (Optional)"></textarea>
+<textarea id="familyHistory" placeholder="Family Medical History (Optional)"></textarea>
+
+<h3>Insurance</h3>
+<input type="text" id="philHealthNumber" placeholder="PhilHealth ID Number (N/A if none)">
+<input type="text" id="insuranceProvider" placeholder="HMO / Insurance Provider (N/A if none)">
+
+<button type="submit">Save Profile</button>
+<button type="button" onclick="logout()">Logout</button>
+
+</form>
+
+<script src="../js/dashboard.js"></script>
 
 </body>
 </html>
