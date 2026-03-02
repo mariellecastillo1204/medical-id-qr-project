@@ -10,18 +10,20 @@ const User = require("./models/User");
 
 const app = express();
 
+// ================= MIDDLEWARE =================
 app.use(express.json());
 app.use(cors());
 
-// ✅ Root route (so no more Cannot GET /)
+// ================= ROOT ROUTE =================
 app.get("/", (req, res) => {
   res.send("Medical ID Backend is Running 🚀");
 });
 
-// ✅ Connect to MongoDB
+// ================= DATABASE =================
+// ⚠️ DO NOT replace this with your Render URL
 mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("MongoDB Connected"))
-.catch(err => console.log(err));
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => console.log(err));
 
 // ================= SIGNUP =================
 app.post("/api/auth/signup", async (req, res) => {
@@ -75,5 +77,9 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+// ================= START SERVER =================
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log("Server running on port", PORT));
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

@@ -12,7 +12,7 @@ const qrImage = document.getElementById("qrImage");
 window.onload = loadProfile;
 
 async function loadProfile() {
-  const res = await fetch("http://localhost:5000/api/medical", {
+  const res = await fetch("https://medical-id-qr-project.onrender.com", {
     headers: { Authorization: `Bearer ${token}` }
   });
 
@@ -65,7 +65,7 @@ form.addEventListener("submit", async (e) => {
     medicalConditions: medicalConditions.value
   };
 
-  const res = await fetch("http://localhost:5000/api/medical", {
+  const res = await fetch("https://medical-id-qr-project.onrender.com", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
