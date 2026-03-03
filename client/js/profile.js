@@ -32,7 +32,7 @@ window.onload = async () => {
     <p><strong>Contact Number:</strong> ${data.emergencyContactNumber}</p>
 
     <h3>Medical Information</h3>
-    <p><strong>Height:</strong> ${data.height} in</p>
+    <p><strong>Height:</strong> ${data.height} cm</p>
     <p><strong>Weight:</strong> ${data.weight} kg</p>
     <p><strong>Allergies:</strong> ${data.allergies}</p>
     <p><strong>Medications:</strong> ${data.medications}</p>

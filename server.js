@@ -250,7 +250,7 @@ app.get("/public-profile/:token", async (req, res) => {
     <hr>
 
     <h3>Medical Information</h3>
-    <p><strong>Height:</strong> ${profile.height || "N/A"} in</p>
+    <p><strong>Height:</strong> ${profile.height || "N/A"} cm</p>
     <p><strong>Weight:</strong> ${profile.weight || "N/A"} kg</p>
     <p><strong>Allergies:</strong> ${profile.allergies || "N/A"}</p>
     <p><strong>Medications:</strong> ${profile.medications || "N/A"}</p>
