@@ -1,35 +1,14 @@
+<script>
 const token = localStorage.getItem("token");
 
 if (!token) {
-  alert("Session expired. Please login again.");
-  window.location.href = "login.html";
+  window.location.href = "/pages/login.html";
 }
 
-// LOAD EXISTING DATA
-window.onload = async () => {
-  try {
-    const res = await fetch("/api/profile", {
-      headers: { Authorization: token }
-    });
-
-    const data = await res.json();
-    if (!data || data.message) return;
-
-    Object.keys(data).forEach(key => {
-      const element = document.getElementById(key);
-      if (element) element.value = data[key];
-    });
-
-  } catch (err) {
-    console.log("Error loading profile", err);
-  }
-};
-
-// SAVE FORM
-document.getElementById("medicalForm").addEventListener("submit", async (e) => {
+document.getElementById("profileForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const formData = {
+  const profileData = {
     firstName: document.getElementById("firstName").value,
     middleName: document.getElementById("middleName").value,
     lastName: document.getElementById("lastName").value,
@@ -38,47 +17,30 @@ document.getElementById("medicalForm").addEventListener("submit", async (e) => {
     bloodType: document.getElementById("bloodType").value,
     contactNumber: document.getElementById("contactNumber").value,
     religion: document.getElementById("religion").value,
-
-    emergencyFirstName: document.getElementById("emergencyFirstName").value,
-    emergencyMiddleName: document.getElementById("emergencyMiddleName").value,
-    emergencyLastName: document.getElementById("emergencyLastName").value,
-    relationship: document.getElementById("relationship").value,
-    emergencyContactNumber: document.getElementById("emergencyContactNumber").value,
-
     allergies: document.getElementById("allergies").value,
     medications: document.getElementById("medications").value,
     medicalConditions: document.getElementById("medicalConditions").value,
-
-    pastIllness: document.getElementById("pastIllness").value,
-    familyHistory: document.getElementById("familyHistory").value,
-
-    philhealth: document.getElementById("philhealth").value,
-    hmo: document.getElementById("hmo").value
+    emergencyFirstName: document.getElementById("emergencyFirstName").value,
+    emergencyLastName: document.getElementById("emergencyLastName").value
   };
 
-  try {
-    const res = await fetch("/api/profile", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token
-      },
-      body: JSON.stringify(formData)
-    });
+  const res = await fetch("/api/profile", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token   // ✅ FIXED
+    },
+    body: JSON.stringify(profileData)
+  });
 
-    const data = await res.json();
-    alert(data.message || "Profile saved successfully!");
+  const data = await res.json();
 
-    // 🔥 IMPORTANT: Redirect to profile page after save
-    window.location.href = "pages/profile.html";
-
-  } catch (err) {
-    console.log("Error saving profile", err);
+  if (!res.ok) {
+    alert(data.message || "Error saving profile");
+    return;
   }
-});
 
-// LOGOUT FIX
-function logout() {
-  localStorage.removeItem("token");
-  window.location.href = "pages/profile.html";
-}
+  alert("Profile saved successfully!");
+  window.location.href = "/pages/profile.html";  // ✅ FIXED
+});
+</script>
