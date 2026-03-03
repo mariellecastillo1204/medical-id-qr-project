@@ -1,70 +1,72 @@
 const express = require("express");
-const cors = require("cors");
+const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
 const path = require("path");
+const crypto = require("crypto");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
-/* ================== DATABASE ================== */
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "client")));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.error("MongoDB Error:", err));
+  .catch(err => console.log(err));
 
-/* ================== MODELS ================== */
+/* =======================
+   MODELS
+======================= */
 
 const userSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  email: { type: String, unique: true },
+  password: String,
+  role: { type: String, default: "user" }
 });
+
 const User = mongoose.model("User", userSchema);
 
 const medicalProfileSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  qrToken: { type: String, unique: true },
 
-  firstName: { type: String, required: true },
+  firstName: String,
   middleName: String,
-  lastName: { type: String, required: true },
-  sex: { type: String, required: true },
-  dob: { type: Date, required: true },
-  bloodType: { type: String, required: true },
-  contactNumber: { type: String, required: true },
-  religion: { type: String, required: true },
+  lastName: String,
+  sex: String,
+  dob: Date,
+  bloodType: String,
+  contactNumber: String,
+  religion: String,
 
-  emergencyFirstName: { type: String, required: true },
+  emergencyFirstName: String,
   emergencyMiddleName: String,
-  emergencyLastName: { type: String, required: true },
-  relationship: { type: String, required: true },
-  emergencyContactNumber: { type: String, required: true },
+  emergencyLastName: String,
+  emergencyRelationship: String,
+  emergencyContactNumber: String,
 
-  allergies: { type: String, required: true },
-  medications: { type: String, required: true },
-  medicalConditions: { type: String, required: true },
-
+  allergies: String,
+  medications: String,
+  medicalConditions: String,
   pastIllness: String,
   familyHistory: String,
 
   philhealth: String,
   hmo: String
-}, { timestamps: true });
+});
 
 const MedicalProfile = mongoose.model("MedicalProfile", medicalProfileSchema);
 
-/* ================== MIDDLEWARE ================== */
-
-app.use(express.json());
-app.use(cors());
-app.use(express.static(path.join(__dirname, "client")));
-
-/* ================== AUTH ================== */
+/* =======================
+   AUTH MIDDLEWARE
+======================= */
 
 const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization;
-  if (!token) return res.status(401).json({ message: "Unauthorized" });
+  const header = req.headers.authorization;
+  if (!header) return res.status(401).json({ message: "No token" });
+
+  const token = header.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "Invalid token format" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -75,143 +77,130 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-/* ================== ROUTES ================== */
+/* =======================
+   ROUTES
+======================= */
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "client/pages/login.html"));
+  res.sendFile(path.join(__dirname, "client/index.html"));
 });
 
-/* ===== AUTH ===== */
+/* AUTH */
 
 app.post("/api/auth/signup", async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ message: "User already exists" });
+  const existing = await User.findOne({ email });
+  if (existing) return res.json({ message: "User already exists" });
 
-    const hashed = await bcrypt.hash(password, 10);
-    await new User({ email, password: hashed }).save();
+  const hashed = await bcrypt.hash(password, 10);
 
-    res.json({ message: "Account created successfully" });
-  } catch {
-    res.status(500).json({ message: "Signup error" });
-  }
+  await new User({ email, password: hashed }).save();
+  res.json({ message: "Account created successfully" });
 });
 
 app.post("/api/auth/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+  const user = await User.findOne({ email });
+  if (!user) return res.json({ message: "Invalid credentials" });
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(400).json({ message: "Invalid credentials" });
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) return res.json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "2h" });
-    res.json({ token });
-  } catch {
-    res.status(500).json({ message: "Login error" });
-  }
+  const token = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
+
+  res.json({ token });
 });
 
-/* ===== PROFILE ===== */
+/* PROFILE CREATE OR UPDATE */
 
 app.post("/api/profile", authMiddleware, async (req, res) => {
-  try {
-    const existing = await MedicalProfile.findOne({ user: req.user.id });
 
-    if (existing) {
-      await MedicalProfile.findOneAndUpdate(
-        { user: req.user.id },
-        req.body,
-        { new: true }
-      );
-      return res.json({ message: "Profile updated successfully" });
-    }
+  let profile = await MedicalProfile.findOne({ user: req.user.id });
 
-    await new MedicalProfile({
+  if (!profile) {
+    profile = new MedicalProfile({
       ...req.body,
-      user: req.user.id
-    }).save();
-
-    res.json({ message: "Profile saved successfully" });
-
-  } catch {
-    res.status(500).json({ message: "Profile save error" });
+      user: req.user.id,
+      qrToken: crypto.randomBytes(16).toString("hex")
+    });
+  } else {
+    Object.assign(profile, req.body);
   }
+
+  await profile.save();
+
+  res.json({ message: "Profile saved successfully" });
 });
+
+/* GET PROFILE */
 
 app.get("/api/profile", authMiddleware, async (req, res) => {
   const profile = await MedicalProfile.findOne({ user: req.user.id });
   res.json(profile);
 });
 
-/* ===== PUBLIC QR ROUTE ===== */
+/* REGENERATE QR */
 
-app.get("/public-profile/:id", async (req, res) => {
-  try {
-    const profile = await MedicalProfile.findById(req.params.id);
-    if (!profile) return res.send("<h2>Profile not found</h2>");
+app.post("/api/profile/regenerate-qr", authMiddleware, async (req, res) => {
 
-    const formattedDOB = new Date(profile.dob).toLocaleDateString("en-US");
+  const newToken = crypto.randomBytes(16).toString("hex");
 
-    res.send(`
-    <html>
-    <head>
-      <style>
-        body {
-          background:#58111A;
-          color:white;
-          font-family:Arial;
-          padding:30px;
-        }
-        .card {
-          background:#3D0C02;
-          padding:30px;
-          border-radius:12px;
-          max-width:700px;
-          margin:auto;
-        }
-        h2,h3 { color:white; }
-        hr { border:1px solid #660000; }
-      </style>
-    </head>
-    <body>
-      <div class="card">
-        <h2>${profile.firstName} ${profile.middleName || ""} ${profile.lastName}</h2>
-        <hr>
-        <h3>Personal Info</h3>
-        <p>Sex: ${profile.sex}</p>
-        <p>DOB: ${formattedDOB}</p>
-        <p>Blood Type: ${profile.bloodType}</p>
-        <p>Contact: ${profile.contactNumber}</p>
-        <p>Religion: ${profile.religion}</p>
-        <hr>
-        <h3>Emergency</h3>
-        <p>${profile.emergencyFirstName} ${profile.emergencyLastName}</p>
-        <p>${profile.relationship}</p>
-        <p>${profile.emergencyContactNumber}</p>
-        <hr>
-        <h3>Medical</h3>
-        <p>Allergies: ${profile.allergies}</p>
-        <p>Medications: ${profile.medications}</p>
-        <p>Conditions: ${profile.medicalConditions}</p>
-        <p>Past Illness: ${profile.pastIllness || "N/A"}</p>
-        <p>Family History: ${profile.familyHistory || "N/A"}</p>
-        <hr>
-        <h3>Insurance</h3>
-        <p>PhilHealth: ${profile.philhealth || "N/A"}</p>
-        <p>HMO: ${profile.hmo || "N/A"}</p>
-      </div>
-    </body>
-    </html>
-    `);
+  await MedicalProfile.findOneAndUpdate(
+    { user: req.user.id },
+    { qrToken: newToken }
+  );
 
-  } catch {
-    res.send("<h2>Error loading profile</h2>");
-  }
+  res.json({ message: "QR regenerated", qrToken: newToken });
 });
 
-app.listen(PORT, () => console.log("Server running on port " + PORT));
+/* PUBLIC PROFILE (FULL DATA DISPLAY) */
+
+app.get("/public-profile/:token", async (req, res) => {
+
+  const profile = await MedicalProfile.findOne({
+    qrToken: req.params.token
+  });
+
+  if (!profile) return res.send("<h2>Invalid or expired QR Code</h2>");
+
+  res.send(`
+    <h1>Medical Identification</h1>
+    <p><strong>Name:</strong> ${profile.firstName} ${profile.middleName || ""} ${profile.lastName}</p>
+    <p><strong>Sex:</strong> ${profile.sex}</p>
+    <p><strong>Date of Birth:</strong> ${profile.dob?.toDateString()}</p>
+    <p><strong>Blood Type:</strong> ${profile.bloodType}</p>
+    <p><strong>Contact:</strong> ${profile.contactNumber}</p>
+    <p><strong>Religion:</strong> ${profile.religion}</p>
+
+    <hr>
+
+    <h3>Emergency Contact</h3>
+    <p>${profile.emergencyFirstName} ${profile.emergencyMiddleName || ""} ${profile.emergencyLastName}</p>
+    <p>${profile.emergencyRelationship}</p>
+    <p>${profile.emergencyContactNumber}</p>
+
+    <hr>
+
+    <h3>Medical Information</h3>
+    <p>Allergies: ${profile.allergies}</p>
+    <p>Medications: ${profile.medications}</p>
+    <p>Conditions: ${profile.medicalConditions}</p>
+    <p>Past Illness: ${profile.pastIllness || "N/A"}</p>
+    <p>Family History: ${profile.familyHistory || "N/A"}</p>
+
+    <hr>
+
+    <h3>Insurance</h3>
+    <p>PhilHealth: ${profile.philhealth || "N/A"}</p>
+    <p>HMO: ${profile.hmo || "N/A"}</p>
+  `);
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log("Server running"));

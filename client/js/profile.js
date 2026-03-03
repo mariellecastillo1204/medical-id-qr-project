@@ -1,22 +1,22 @@
 const token = localStorage.getItem("token");
-if (!token) window.location.href = "pages/login.html";
+if (!token) window.location.href = "/pages/login.html";
 
-let currentProfileID = null;
+let currentProfileToken = null;
 
 window.onload = async () => {
 
   const res = await fetch("/api/profile", {
-    headers: { Authorization: token }
+    headers: { Authorization: "Bearer " + token }
   });
 
   const data = await res.json();
 
   if (!data || !data._id) {
-    window.location.href = "pages/dashboard.html";
+    window.location.href = "/pages/dashboard.html";
     return;
   }
 
-  currentProfileID = data._id;
+  currentProfileToken = data.qrToken;
 
   const formattedDOB = new Date(data.dob).toLocaleDateString("en-US");
 
@@ -28,35 +28,13 @@ window.onload = async () => {
     <p><strong>Blood Type:</strong> ${data.bloodType}</p>
     <p><strong>Contact:</strong> ${data.contactNumber}</p>
     <p><strong>Religion:</strong> ${data.religion}</p>
-
-    <hr>
-
-    <h3>Emergency Contact</h3>
-    <p>${data.emergencyFirstName} ${data.emergencyLastName}</p>
-    <p>${data.relationship}</p>
-    <p>${data.emergencyContactNumber}</p>
-
-    <hr>
-
-    <h3>Medical Information</h3>
-    <p>Allergies: ${data.allergies}</p>
-    <p>Medications: ${data.medications}</p>
-    <p>Conditions: ${data.medicalConditions}</p>
-    <p>Past Illness: ${data.pastIllness || "N/A"}</p>
-    <p>Family History: ${data.familyHistory || "N/A"}</p>
-
-    <hr>
-
-    <h3>Insurance</h3>
-    <p>PhilHealth: ${data.philhealth || "N/A"}</p>
-    <p>HMO: ${data.hmo || "N/A"}</p>
   `;
 
-  generateQR();
+  generateQR(currentProfileToken);
 };
 
-function generateQR() {
-  const url = window.location.origin + "/public-profile/" + currentProfileID;
+function generateQR(tokenValue) {
+  const url = window.location.origin + "/public-profile/" + tokenValue;
 
   document.getElementById("qrcode").innerHTML = "";
 
@@ -65,24 +43,35 @@ function generateQR() {
   });
 }
 
+async function generateNewQR() {
+
+  const res = await fetch("/api/profile/regenerate-qr", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  const data = await res.json();
+
+  currentProfileToken = data.qrToken;
+
+  generateQR(currentProfileToken);
+
+  alert("New QR generated. Old QR is now invalid.");
+}
+
 function downloadQR() {
   const canvas = document.querySelector("#qrcode canvas");
   const link = document.createElement("a");
-  link.download = "medical-qr.png";
+  link.download = "medical-identification-qr.png";
   link.href = canvas.toDataURL();
   link.click();
 }
 
-function generateNewQR() {
-  alert("QR refreshed.");
-  generateQR();
-}
-
 function editProfile() {
-  window.location.href = "pages/dashboard.html";
+  window.location.href = "/pages/dashboard.html";
 }
 
 function logout() {
   localStorage.removeItem("token");
-  window.location.href = "pages/login.html";
+  window.location.href = "/pages/login.html";
 }
