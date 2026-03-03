@@ -4,226 +4,224 @@
   <title>Medical Identity Dashboard</title>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f6f9;
-      margin: 0;
-      padding: 0;
-    }
+  :root {
+    --licorice: #1A1110;
+    --blood-red: #660000;
+    --black-bean: #3D0C02;
+    --chocolate-cosmos: #58111A;
+    --white: #ffffff;
+  }
 
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
+  body {
+    font-family: Arial, sans-serif;
+    background: var(--licorice);
+    margin: 0;
+    padding: 0;
+    color: var(--white);
+  }
 
-    h2 {
-      text-align: center;
-      color: #1e3a8a;
-    }
+  .container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: var(--black-bean);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+  }
 
-    h3 {
-      margin-top: 30px;
-      padding-bottom: 5px;
-      border-bottom: 2px solid #1e3a8a;
-      color: #1e3a8a;
-    }
+  h2 {
+    text-align: center;
+    color: var(--blood-red);
+  }
 
-    .section-note {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 15px;
-    }
+  h3 {
+    margin-top: 30px;
+    color: var(--blood-red);
+  }
 
-    .form-group {
-      margin-bottom: 15px;
-    }
+  .note {
+    font-size: 14px;
+    color: #ccc;
+    margin-bottom: 15px;
+  }
 
-    label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 5px;
-    }
+  .form-group {
+    margin-bottom: 15px;
+  }
 
-    .required {
-      color: red;
-    }
+  label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+  }
 
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
+  .required {
+    color: var(--blood-red);
+  }
 
-    textarea {
-      resize: vertical;
-    }
+  input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--chocolate-cosmos);
+    background: var(--licorice);
+    color: var(--white);
+  }
 
-    button {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border: 1px solid var(--blood-red);
+  }
 
-    .save-btn {
-      background-color: #1e3a8a;
-      color: white;
-    }
+  button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+    background: var(--blood-red);
+    color: var(--white);
+  }
 
-    .logout-btn {
-      background-color: #c0392b;
-      color: white;
-      margin-left: 10px;
-    }
+  button:hover {
+    opacity: 0.85;
+  }
 
-    .button-group {
-      margin-top: 20px;
-      text-align: center;
-    }
   </style>
 </head>
+
 <body>
 
 <div class="container">
-<h2>Medical Identity Dashboard</h2>
+  <h2>Medical Identity Dashboard</h2>
 
-<form id="medicalForm">
+  <form id="medicalForm">
 
-<!-- PERSONAL INFORMATION -->
-<h3>Personal Information</h3>
-<div class="section-note">Fields marked with <span class="required">*</span> are required.</div>
+    <h3>Personal Information</h3>
 
-<div class="form-group">
-<label>First Name <span class="required">*</span></label>
-<input type="text" id="firstName" required>
-</div>
+    <div class="form-group">
+      <label>First Name <span class="required">*</span></label>
+      <input type="text" id="firstName" required>
+    </div>
 
-<div class="form-group">
-<label>Middle Name (Optional)</label>
-<input type="text" id="middleName">
-</div>
+    <div class="form-group">
+      <label>Middle Name (Optional)</label>
+      <input type="text" id="middleName">
+    </div>
 
-<div class="form-group">
-<label>Last Name <span class="required">*</span></label>
-<input type="text" id="lastName" required>
-</div>
+    <div class="form-group">
+      <label>Last Name <span class="required">*</span></label>
+      <input type="text" id="lastName" required>
+    </div>
 
-<div class="form-group">
-<label>Sex <span class="required">*</span></label>
-<input type="text" id="sex" required>
-</div>
+    <div class="form-group">
+      <label>Sex <span class="required">*</span></label>
+      <select id="sex" required>
+        <option value="">Select Sex</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Prefer not to say</option>
+      </select>
+    </div>
 
-<div class="form-group">
-<label>Date of Birth <span class="required">*</span></label>
-<input type="date" id="dateOfBirth" required>
-</div>
+    <div class="form-group">
+      <label>Date of Birth <span class="required">*</span></label>
+      <input type="date" id="dob" required>
+    </div>
 
-<div class="form-group">
-<label>Blood Type <span class="required">*</span></label>
-<input type="text" id="bloodType" required>
-</div>
+    <div class="form-group">
+      <label>Blood Type <span class="required">*</span></label>
+      <select id="bloodType" required>
+        <option value="">Select Blood Type</option>
+        <option>A+</option><option>A-</option>
+        <option>B+</option><option>B-</option>
+        <option>AB+</option><option>AB-</option>
+        <option>O+</option><option>O-</option>
+      </select>
+    </div>
 
-<div class="form-group">
-<label>Contact Number <span class="required">*</span></label>
-<input type="text" id="contactNumber" required>
-</div>
+    <div class="form-group">
+      <label>Contact Number <span class="required">*</span></label>
+      <input type="text" id="contactNumber" required>
+    </div>
 
-<div class="form-group">
-<label>Religion <span class="required">*</span></label>
-<input type="text" id="religion" required>
-</div>
+    <div class="form-group">
+      <label>Religion <span class="required">*</span></label>
+      <input type="text" id="religion" required>
+    </div>
 
+    <h3>Emergency Contact</h3>
 
-<!-- EMERGENCY CONTACT -->
-<h3>Emergency Contact</h3>
+    <div class="form-group">
+      <label>Emergency Contact First Name <span class="required">*</span></label>
+      <input type="text" id="emergencyFirstName" required>
+    </div>
 
-<div class="form-group">
-<label>Emergency First Name <span class="required">*</span></label>
-<input type="text" id="emergencyFirstName" required>
-</div>
+    <div class="form-group">
+      <label>Emergency Contact Middle Name (Optional)</label>
+      <input type="text" id="emergencyMiddleName">
+    </div>
 
-<div class="form-group">
-<label>Emergency Middle Name (Optional)</label>
-<input type="text" id="emergencyMiddleName">
-</div>
+    <div class="form-group">
+      <label>Emergency Contact Last Name <span class="required">*</span></label>
+      <input type="text" id="emergencyLastName" required>
+    </div>
 
-<div class="form-group">
-<label>Emergency Last Name <span class="required">*</span></label>
-<input type="text" id="emergencyLastName" required>
-</div>
+    <div class="form-group">
+      <label>Relationship <span class="required">*</span></label>
+      <input type="text" id="relationship" required>
+    </div>
 
-<div class="form-group">
-<label>Relationship to Patient <span class="required">*</span></label>
-<input type="text" id="emergencyRelationship" required>
-</div>
+    <div class="form-group">
+      <label>Emergency Contact Number <span class="required">*</span></label>
+      <input type="text" id="emergencyContactNumber" required>
+    </div>
 
-<div class="form-group">
-<label>Emergency Contact Number <span class="required">*</span></label>
-<input type="text" id="emergencyContactNumber" required>
-</div>
+    <h3>Medical Information</h3>
+    <div class="note">If not applicable, enter "N/A"</div>
 
+    <div class="form-group">
+      <label>Allergies <span class="required">*</span></label>
+      <textarea id="allergies" required></textarea>
+    </div>
 
-<!-- MEDICAL INFORMATION -->
-<h3>Medical Information</h3>
-<div class="section-note">
-If not applicable, you MUST type <b>"N/A"</b> in required fields.
-</div>
+    <div class="form-group">
+      <label>Maintenance / Prescription Medications <span class="required">*</span></label>
+      <textarea id="medications" required></textarea>
+    </div>
 
-<div class="form-group">
-<label>Allergies <span class="required">*</span></label>
-<textarea id="allergies" required></textarea>
-</div>
+    <div class="form-group">
+      <label>Medical Conditions <span class="required">*</span></label>
+      <textarea id="medicalConditions" required></textarea>
+    </div>
 
-<div class="form-group">
-<label>Maintenance / Prescription Medications <span class="required">*</span></label>
-<textarea id="medications" required></textarea>
-</div>
+    <div class="form-group">
+      <label>Past Illness (Optional)</label>
+      <textarea id="pastIllness"></textarea>
+    </div>
 
-<div class="form-group">
-<label>Medical Conditions <span class="required">*</span></label>
-<textarea id="medicalConditions" required></textarea>
-</div>
+    <div class="form-group">
+      <label>Family Medical History (Optional)</label>
+      <textarea id="familyHistory"></textarea>
+    </div>
 
-<div class="form-group">
-<label>Past Illness (Optional)</label>
-<textarea id="pastIllness"></textarea>
-</div>
+    <h3>Insurance / Benefits</h3>
+    <div class="note">If not applicable, enter "N/A"</div>
 
-<div class="form-group">
-<label>Family Medical History (Optional)</label>
-<textarea id="familyHistory"></textarea>
-</div>
+    <div class="form-group">
+      <label>PhilHealth ID Number</label>
+      <input type="text" id="philhealth">
+    </div>
 
+    <div class="form-group">
+      <label>HMO / Health Insurance Provider</label>
+      <input type="text" id="hmo">
+    </div>
 
-<!-- INSURANCE -->
-<h3>Insurance / Benefits</h3>
-<div class="section-note">
-If not applicable, you may input <b>"N/A"</b>.
-</div>
+    <button type="submit">Save & View Profile</button>
 
-<div class="form-group">
-<label>PhilHealth ID Number</label>
-<input type="text" id="philHealthNumber">
-</div>
-
-<div class="form-group">
-<label>HMO / Health Insurance Provider</label>
-<input type="text" id="insuranceProvider">
-</div>
-
-
-<div class="button-group">
-<button type="submit" class="save-btn">Save Profile</button>
-<button type="button" onclick="logout()" class="logout-btn">Logout</button>
-</div>
-
-</form>
+  </form>
 </div>
 
 <script src="../js/dashboard.js"></script>
