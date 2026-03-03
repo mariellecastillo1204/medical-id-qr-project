@@ -35,4 +35,13 @@ function downloadQR() {
 function logout() {
   localStorage.removeItem("token");
   window.location.href = "login.html";
+
+  function downloadQR() {
+  const canvas = document.querySelector("#qrcode canvas");
+  const link = document.createElement("a");
+  link.download = "medical-qr.png";
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
 }
