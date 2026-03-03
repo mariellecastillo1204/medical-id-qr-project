@@ -97,9 +97,9 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const profileData = await profileRes.json();
 
   if (profileData && profileData._id) {
-    window.location.href = "profile.html";
+   window.location.href = "pages/profile.html";
   } else {
-    window.location.href = "dashboard.html";
+    window.location.href = "pages/dashboard.html";
   }
 });
 </script>

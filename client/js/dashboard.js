@@ -70,7 +70,7 @@ document.getElementById("medicalForm").addEventListener("submit", async (e) => {
     alert(data.message || "Profile saved successfully!");
 
     // 🔥 IMPORTANT: Redirect to profile page after save
-    window.location.href = "profile.html";
+    window.location.href = "pages/profile.html";
 
   } catch (err) {
     console.log("Error saving profile", err);
@@ -80,5 +80,5 @@ document.getElementById("medicalForm").addEventListener("submit", async (e) => {
 // LOGOUT FIX
 function logout() {
   localStorage.removeItem("token");
-  window.location.href = "profile.html";
+  window.location.href = "pages/profile.html";
 }

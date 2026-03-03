@@ -79,10 +79,10 @@ function generateNewQR() {
 }
 
 function editProfile() {
-  window.location.href = "dashboard.html";
+  window.location.href = "pages/dashboard.html";
 }
 
 function logout() {
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  window.location.href = "pages/login.html";
 }
