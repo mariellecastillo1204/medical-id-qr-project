@@ -1,105 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Medical Identity Profile</title>
+  <title>Medical Profile</title>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
   <style>
-  :root {
-    --licorice: #1A1110;
-    --blood-red: #660000;
-    --black-bean: #3D0C02;
-    --chocolate-cosmos: #58111A;
-    --white: #ffffff;
-  }
+    body {
+      background:#58111A;
+      color:white;
+      font-family:Arial;
+      margin:0;
+      padding:40px;
+    }
 
-  body {
-    font-family: Arial, sans-serif;
-    background: var(--licorice);
-    margin: 0;
-    padding: 0;
-    color: var(--white);
-  }
+    .container {
+      max-width:800px;
+      margin:auto;
+      background:#3D0C02;
+      padding:30px;
+      border-radius:12px;
+      box-shadow:0 0 20px rgba(0,0,0,0.3);
+    }
 
-  .card {
-    max-width: 900px;
-    margin: 40px auto;
-    background: var(--black-bean);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.6);
-  }
+    h2 {
+      text-align:center;
+      margin-bottom:20px;
+    }
 
-  h2 {
-    text-align: center;
-    color: var(--blood-red);
-  }
+    hr {
+      border:1px solid #660000;
+      margin:20px 0;
+    }
 
-  h3 {
-    margin-top: 25px;
-    color: var(--blood-red);
-    border-bottom: 1px solid var(--chocolate-cosmos);
-    padding-bottom: 5px;
-  }
+    .qr-section {
+      text-align:center;
+      margin-top:30px;
+    }
 
-  p {
-    margin: 6px 0;
-  }
+    .btn-group {
+      margin-top:15px;
+    }
 
-  .buttons {
-    text-align: center;
-    margin-top: 30px;
-  }
+    button {
+      padding:10px 16px;
+      margin:6px;
+      border:none;
+      border-radius:6px;
+      background:#660000;
+      color:white;
+      cursor:pointer;
+    }
 
-  button {
-    padding: 10px 20px;
-    margin: 10px;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .update {
-    background: var(--blood-red);
-    color: var(--white);
-  }
-
-  .logout {
-    background: var(--chocolate-cosmos);
-    color: var(--white);
-  }
-
-  button:hover {
-    opacity: 0.85;
-  }
-
-  #qrcode {
-    margin-top: 30px;
-    text-align: center;
-  }
-
+    button:hover {
+      opacity:0.85;
+    }
   </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="container">
+
   <h2>Medical Identity Profile</h2>
 
   <div id="profileData"></div>
 
-  <div id="qrcode"></div>
+  <div class="qr-section">
+    <div id="qrcode"></div>
 
-  <div class="buttons">
-    <button class="update" onclick="goToDashboard()">Update Information</button>
-    <button class="logout" onclick="logout()">Logout</button>
+    <div class="btn-group">
+      <button onclick="downloadQR()">Download QR</button>
+      <button onclick="generateNewQR()">Generate New QR</button>
+      <button onclick="editProfile()">Edit Profile</button>
+      <button onclick="logout()">Logout</button>
+    </div>
   </div>
+
 </div>
 
-<script src="../js/profile.js"></script>
-
-<button onclick="downloadQR()">Download QR</button>
-
+<script src="profile.js"></script>
 </body>
 </html>
