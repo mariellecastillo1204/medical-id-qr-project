@@ -31,7 +31,13 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 
 const medicalProfileSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    unique: true
+  },
+
   qrToken: { type: String, unique: true },
 
   firstName: String,
@@ -51,7 +57,6 @@ const medicalProfileSchema = new mongoose.Schema({
 
   height: String,
   weight: String,
-
   allergies: String,
   medications: String,
   medicalConditions: String,
@@ -89,14 +94,6 @@ const authMiddleware = (req, res, next) => {
 };
 
 /* =======================
-   ROOT
-======================= */
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "client/index.html"));
-});
-
-/* =======================
    AUTH ROUTES
 ======================= */
 
@@ -108,7 +105,6 @@ app.post("/api/auth/signup", async (req, res) => {
     return res.status(400).json({ message: "User already exists" });
 
   const hashed = await bcrypt.hash(password, 10);
-
   await new User({ email, password: hashed }).save();
 
   res.status(201).json({ message: "Account created successfully" });
@@ -135,34 +131,22 @@ app.post("/api/auth/login", async (req, res) => {
 });
 
 /* =======================
-   CREATE OR UPDATE PROFILE (FIXED)
+   CREATE OR UPDATE PROFILE
 ======================= */
 
 app.post("/api/profile", authMiddleware, async (req, res) => {
-
-  const allowedFields = [
-    "firstName","middleName","lastName","sex","dob","bloodType","contactNumber","religion",
-    "emergencyFirstName","emergencyMiddleName","emergencyLastName","emergencyRelationship","emergencyContactNumber",
-    "height","weight",
-    "allergies","medications","medicalConditions","pastIllness","familyHistory",
-    "philhealth","hmo"
-  ];
 
   let profile = await MedicalProfile.findOne({ user: req.user.id });
 
   if (!profile) {
     profile = new MedicalProfile({
+      ...req.body,
       user: req.user.id,
-      qrToken: crypto.randomBytes(16).toString("hex")
+      qrToken: crypto.randomBytes(24).toString("hex")
     });
+  } else {
+    Object.assign(profile, req.body);
   }
-
-  // Only update allowed fields
-  allowedFields.forEach(field => {
-    if (req.body[field] !== undefined) {
-      profile[field] = req.body[field];
-    }
-  });
 
   await profile.save();
 
@@ -174,6 +158,7 @@ app.post("/api/profile", authMiddleware, async (req, res) => {
 ======================= */
 
 app.get("/api/profile", authMiddleware, async (req, res) => {
+
   const profile = await MedicalProfile.findOne({ user: req.user.id });
 
   if (!profile)
@@ -188,22 +173,22 @@ app.get("/api/profile", authMiddleware, async (req, res) => {
 
 app.post("/api/profile/regenerate-qr", authMiddleware, async (req, res) => {
 
-  const newToken = crypto.randomBytes(16).toString("hex");
-
-  const profile = await MedicalProfile.findOneAndUpdate(
-    { user: req.user.id },
-    { qrToken: newToken },
-    { new: true }
-  );
+  const profile = await MedicalProfile.findOne({ user: req.user.id });
 
   if (!profile)
     return res.status(404).json({ message: "Profile not found" });
 
-  res.json({ message: "QR regenerated", qrToken: newToken });
+  profile.qrToken = crypto.randomBytes(24).toString("hex");
+  await profile.save();
+
+  res.json({
+    message: "QR regenerated successfully",
+    qrToken: profile.qrToken
+  });
 });
 
 /* =======================
-   PUBLIC PROFILE (STYLED)
+   PUBLIC PROFILE (QR VIEW)
 ======================= */
 
 app.get("/public-profile/:token", async (req, res) => {
@@ -235,57 +220,54 @@ app.get("/public-profile/:token", async (req, res) => {
         background:#3D0C02;
         padding:40px;
         border-radius:12px;
-        width:520px;
+        width:500px;
       }
-      h2 { text-align:center; }
-      p { margin:6px 0; }
+      h2, h3 { text-align:center; }
+      p { margin:8px 0; }
       strong { color:#ffcccc; }
-      hr { background:#660000; border:0; height:1px; margin:18px 0; }
+      hr { background:#660000; height:1px; border:0; margin:20px 0; }
     </style>
   </head>
   <body>
-    <div class="card">
-      <h2>Medical Identification Profile</h2>
+  <div class="card">
+    <h2>Medical Identification Profile</h2>
 
-      <p><strong>Name:</strong> ${profile.firstName} ${profile.middleName || ""} ${profile.lastName}</p>
-      <p><strong>Sex:</strong> ${profile.sex}</p>
-      <p><strong>DOB:</strong> ${profile.dob?.toDateString()}</p>
-      <p><strong>Blood Type:</strong> ${profile.bloodType}</p>
-      <p><strong>Height:</strong> ${profile.height || "N/A"} inches</p>
-      <p><strong>Weight:</strong> ${profile.weight || "N/A"} kg</p>
-      <p><strong>Contact:</strong> ${profile.contactNumber}</p>
-      <p><strong>Religion:</strong> ${profile.religion}</p>
+    <h3>Personal Information</h3>
+    <p><strong>Name:</strong> ${profile.firstName} ${profile.middleName || ""} ${profile.lastName}</p>
+    <p><strong>Sex:</strong> ${profile.sex || "N/A"}</p>
+    <p><strong>Date of Birth:</strong> ${profile.dob ? new Date(profile.dob).toDateString() : "N/A"}</p>
+    <p><strong>Blood Type:</strong> ${profile.bloodType || "N/A"}</p>
+    <p><strong>Contact:</strong> ${profile.contactNumber || "N/A"}</p>
+    <p><strong>Religion:</strong> ${profile.religion || "N/A"}</p>
 
-      <hr>
+    <hr>
 
-      <h3>Emergency Contact</h3>
-      <p>${profile.emergencyFirstName} ${profile.emergencyMiddleName || ""} ${profile.emergencyLastName}</p>
-      <p>${profile.emergencyRelationship}</p>
-      <p>${profile.emergencyContactNumber}</p>
+    <h3>Emergency Contact</h3>
+    <p>${profile.emergencyFirstName || ""} ${profile.emergencyMiddleName || ""} ${profile.emergencyLastName || ""}</p>
+    <p>${profile.emergencyRelationship || "N/A"}</p>
+    <p>${profile.emergencyContactNumber || "N/A"}</p>
 
-      <hr>
+    <hr>
 
-      <h3>Medical Information</h3>
-      <p><strong>Allergies:</strong> ${profile.allergies}</p>
-      <p><strong>Medications:</strong> ${profile.medications}</p>
-      <p><strong>Conditions:</strong> ${profile.medicalConditions}</p>
-      <p><strong>Past Illness:</strong> ${profile.pastIllness || "N/A"}</p>
-      <p><strong>Family History:</strong> ${profile.familyHistory || "N/A"}</p>
+    <h3>Medical Information</h3>
+    <p><strong>Height:</strong> ${profile.height || "N/A"} in</p>
+    <p><strong>Weight:</strong> ${profile.weight || "N/A"} kg</p>
+    <p><strong>Allergies:</strong> ${profile.allergies || "N/A"}</p>
+    <p><strong>Medications:</strong> ${profile.medications || "N/A"}</p>
+    <p><strong>Conditions:</strong> ${profile.medicalConditions || "N/A"}</p>
+    <p><strong>Past Illness:</strong> ${profile.pastIllness || "N/A"}</p>
+    <p><strong>Family History:</strong> ${profile.familyHistory || "N/A"}</p>
 
-      <hr>
+    <hr>
 
-      <h3>Insurance</h3>
-      <p><strong>PhilHealth:</strong> ${profile.philhealth || "N/A"}</p>
-      <p><strong>HMO:</strong> ${profile.hmo || "N/A"}</p>
-    </div>
+    <h3>Insurance</h3>
+    <p><strong>PhilHealth:</strong> ${profile.philhealth || "N/A"}</p>
+    <p><strong>HMO:</strong> ${profile.hmo || "N/A"}</p>
+  </div>
   </body>
   </html>
   `);
 });
-
-/* =======================
-   START SERVER
-======================= */
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log("Server running on port " + PORT));

@@ -1,4 +1,3 @@
-<script>
 const token = localStorage.getItem("token");
 
 if (!token) {
@@ -17,18 +16,31 @@ document.getElementById("profileForm").addEventListener("submit", async (e) => {
     bloodType: document.getElementById("bloodType").value,
     contactNumber: document.getElementById("contactNumber").value,
     religion: document.getElementById("religion").value,
+
+    emergencyFirstName: document.getElementById("emergencyFirstName").value,
+    emergencyMiddleName: document.getElementById("emergencyMiddleName").value,
+    emergencyLastName: document.getElementById("emergencyLastName").value,
+    emergencyRelationship: document.getElementById("emergencyRelationship").value,
+    emergencyContactNumber: document.getElementById("emergencyContactNumber").value,
+
+    height: document.getElementById("height").value,
+    weight: document.getElementById("weight").value,
+
     allergies: document.getElementById("allergies").value,
     medications: document.getElementById("medications").value,
     medicalConditions: document.getElementById("medicalConditions").value,
-    emergencyFirstName: document.getElementById("emergencyFirstName").value,
-    emergencyLastName: document.getElementById("emergencyLastName").value
+    pastIllness: document.getElementById("pastIllness").value,
+    familyHistory: document.getElementById("familyHistory").value,
+
+    philhealth: document.getElementById("philhealth").value,
+    hmo: document.getElementById("hmo").value
   };
 
   const res = await fetch("/api/profile", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: "Bearer " + token   // ✅ FIXED
+      Authorization: "Bearer " + token
     },
     body: JSON.stringify(profileData)
   });
@@ -41,6 +53,5 @@ document.getElementById("profileForm").addEventListener("submit", async (e) => {
   }
 
   alert("Profile saved successfully!");
-  window.location.href = "/pages/profile.html";  // ✅ FIXED
+  window.location.href = "/pages/profile.html";
 });
-</script>
