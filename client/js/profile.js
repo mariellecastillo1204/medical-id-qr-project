@@ -15,25 +15,34 @@ window.onload = async () => {
   }
 
   const data = await res.json();
-
-  if (!data || !data._id) {
-    window.location.href = "/pages/dashboard.html";
-    return;
-  }
-
   currentQRToken = data.qrToken;
 
   document.getElementById("profileData").innerHTML = `
-    <p><strong>Name:</strong> ${data.firstName} ${data.middleName || ""} ${data.lastName}</p>
+    <h3>Personal Information</h3>
+    <p><strong>Full Name:</strong> ${data.firstName} ${data.middleName} ${data.lastName}</p>
     <p><strong>Sex:</strong> ${data.sex}</p>
     <p><strong>Date of Birth:</strong> ${new Date(data.dob).toLocaleDateString()}</p>
     <p><strong>Blood Type:</strong> ${data.bloodType}</p>
-    <p><strong>Contact:</strong> ${data.contactNumber}</p>
+    <p><strong>Contact Number:</strong> ${data.contactNumber}</p>
     <p><strong>Religion:</strong> ${data.religion}</p>
+
+    <h3>Emergency Contact</h3>
+    <p><strong>Name:</strong> ${data.emergencyFirstName} ${data.emergencyMiddleName} ${data.emergencyLastName}</p>
+    <p><strong>Relationship:</strong> ${data.emergencyRelationship}</p>
+    <p><strong>Contact Number:</strong> ${data.emergencyContactNumber}</p>
+
+    <h3>Medical Information</h3>
+    <p><strong>Height:</strong> ${data.height} inches</p>
+    <p><strong>Weight:</strong> ${data.weight} kg</p>
     <p><strong>Allergies:</strong> ${data.allergies}</p>
     <p><strong>Medications:</strong> ${data.medications}</p>
     <p><strong>Medical Conditions:</strong> ${data.medicalConditions}</p>
-    <p><strong>Emergency Contact:</strong> ${data.emergencyFirstName} ${data.emergencyLastName}</p>
+    <p><strong>Past Illness:</strong> ${data.pastIllness}</p>
+    <p><strong>Family History:</strong> ${data.familyHistory}</p>
+
+    <h3>Insurance</h3>
+    <p><strong>PhilHealth ID:</strong> ${data.philhealth}</p>
+    <p><strong>HMO:</strong> ${data.hmo}</p>
   `;
 
   generateQR(currentQRToken);
@@ -42,7 +51,6 @@ window.onload = async () => {
 function generateQR(tokenValue) {
   const url = window.location.origin + "/public-profile/" + tokenValue;
   document.getElementById("qrcode").innerHTML = "";
-
   QRCode.toCanvas(url,{width:200},(err,canvas)=>{
     document.getElementById("qrcode").appendChild(canvas);
   });
@@ -55,12 +63,6 @@ async function generateNewQR(){
   });
 
   const data = await res.json();
-
-  if (!res.ok) {
-    alert("QR regeneration failed");
-    return;
-  }
-
   currentQRToken = data.qrToken;
   generateQR(currentQRToken);
   alert("New QR generated. Old QR disabled.");

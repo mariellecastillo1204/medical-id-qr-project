@@ -12,7 +12,7 @@
     }
 
     .container {
-      max-width:700px;
+      max-width:800px;
       margin:auto;
       background:#3D0C02;
       padding:30px;
@@ -21,15 +21,32 @@
 
     h2 {
       text-align:center;
-      margin-bottom:20px;
+      margin-bottom:10px;
+    }
+
+    h3 {
+      border-bottom:1px solid #660000;
+      padding-bottom:5px;
+      margin-top:25px;
+    }
+
+    label {
+      display:block;
+      margin-top:10px;
+      font-weight:bold;
     }
 
     input, select, textarea {
       width:100%;
       padding:10px;
-      margin:8px 0;
+      margin-top:5px;
       border:none;
       border-radius:6px;
+    }
+
+    small {
+      color:#ffcccc;
+      font-size:12px;
     }
 
     button {
@@ -47,58 +64,116 @@
     button:hover {
       opacity:0.85;
     }
+
+    .note {
+      font-size:13px;
+      color:#ffcccc;
+      margin-bottom:15px;
+    }
   </style>
 </head>
 
 <body>
 
 <div class="container">
-  <h2>Edit Medical Identification Profile</h2>
+  <h2>Medical Identification Dashboard</h2>
+
+  <p class="note">
+    All fields marked with (*) are required.  
+    If not applicable, type <strong>N/A</strong>.
+  </p>
 
   <form id="profileForm">
 
-    <input id="firstName" placeholder="First Name" required>
-    <input id="middleName" placeholder="Middle Name">
-    <input id="lastName" placeholder="Last Name" required>
+    <!-- 1. PERSONAL INFORMATION -->
+    <h3>1. Personal Information</h3>
 
-    <select id="sex">
+    <label>First Name *</label>
+    <input id="firstName" required>
+
+    <label>Middle Initial *</label>
+    <input id="middleName" required>
+
+    <label>Last Name *</label>
+    <input id="lastName" required>
+
+    <label>Sex *</label>
+    <select id="sex" required>
       <option value="">Select Sex</option>
       <option>Male</option>
       <option>Female</option>
     </select>
 
-    <input type="date" id="dob">
-    <input id="bloodType" placeholder="Blood Type">
-    <input id="contactNumber" placeholder="Contact Number">
-    <input id="religion" placeholder="Religion">
+    <label>Date of Birth *</label>
+    <input type="date" id="dob" required>
 
-    <hr>
+    <label>Blood Type *</label>
+    <input id="bloodType" required>
 
-    <input id="emergencyFirstName" placeholder="Emergency First Name">
-    <input id="emergencyMiddleName" placeholder="Emergency Middle Name">
-    <input id="emergencyLastName" placeholder="Emergency Last Name">
-    <input id="emergencyRelationship" placeholder="Relationship">
-    <input id="emergencyContactNumber" placeholder="Emergency Contact Number">
+    <label>Contact Number *</label>
+    <input id="contactNumber" required>
 
-    <hr>
+    <label>Religion *</label>
+    <input id="religion" required>
 
-    <textarea id="allergies" placeholder="Allergies"></textarea>
-    <textarea id="medications" placeholder="Medications"></textarea>
-    <textarea id="medicalConditions" placeholder="Medical Conditions"></textarea>
-    <textarea id="pastIllness" placeholder="Past Illness"></textarea>
-    <textarea id="familyHistory" placeholder="Family History"></textarea>
+    <!-- 2. EMERGENCY CONTACT -->
+    <h3>2. Emergency Contact</h3>
 
-    <hr>
+    <label>First Name *</label>
+    <input id="emergencyFirstName" required>
 
-    <input id="philhealth" placeholder="PhilHealth">
-    <input id="hmo" placeholder="HMO">
+    <label>Middle Initial *</label>
+    <input id="emergencyMiddleName" required>
+
+    <label>Last Name *</label>
+    <input id="emergencyLastName" required>
+
+    <label>Relationship to Patient *</label>
+    <input id="emergencyRelationship" required>
+
+    <label>Emergency Contact Number *</label>
+    <input id="emergencyContactNumber" required>
+
+    <!-- 3. MEDICAL INFORMATION -->
+    <h3>3. Medical Information</h3>
+
+    <label>Height (inches) *</label>
+    <input id="height" type="number" min="1" required>
+    <small>Must be numeric (inches).</small>
+
+    <label>Weight (kg) *</label>
+    <input id="weight" type="number" min="1" required>
+    <small>Must be numeric (kilograms).</small>
+
+    <label>Allergies *</label>
+    <textarea id="allergies" required></textarea>
+
+    <label>Maintenance / Prescription Medications *</label>
+    <textarea id="medications" required></textarea>
+
+    <label>Medical Condition *</label>
+    <textarea id="medicalConditions" required></textarea>
+
+    <label>Past Illness *</label>
+    <textarea id="pastIllness" required></textarea>
+
+    <label>Family Medical History *</label>
+    <textarea id="familyHistory" required></textarea>
+
+    <!-- 4. INSURANCE -->
+    <h3>4. Insurance / Benefits</h3>
+
+    <label>PhilHealth ID Number *</label>
+    <input id="philhealth" required>
+
+    <label>HMO / Health Insurance Provider *</label>
+    <input id="hmo" required>
 
     <button type="submit">Save Profile</button>
   </form>
 
   <button onclick="goProfile()">Back to Profile</button>
   <button onclick="logout()">Logout</button>
-
 </div>
 
 <script>
@@ -117,7 +192,6 @@ window.onload = async () => {
   if (res.status === 404) return;
 
   const data = await res.json();
-
   if (!data || !data._id) return;
 
   for (const key in data) {
@@ -130,15 +204,21 @@ window.onload = async () => {
   }
 };
 
-/* SAVE PROFILE */
+/* SAVE PROFILE WITH VALIDATION */
 document.getElementById("profileForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const formData = {};
 
-  document.querySelectorAll("input, select, textarea").forEach(el => {
-    formData[el.id] = el.value;
-  });
+  for (const el of document.querySelectorAll("input, select, textarea")) {
+
+    if (el.hasAttribute("required") && !el.value.trim()) {
+      alert("All required fields must be filled. Use 'N/A' if not applicable.");
+      return;
+    }
+
+    formData[el.id] = el.value.trim();
+  }
 
   const res = await fetch("/api/profile", {
     method: "POST",
