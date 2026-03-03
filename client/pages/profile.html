@@ -1,78 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Medical Profile</title>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
-  <style>
-    body {
-      background:#58111A;
-      color:white;
-      font-family:Arial;
-      margin:0;
-      padding:40px;
-    }
-
-    .container {
-      max-width:800px;
-      margin:auto;
-      background:#3D0C02;
-      padding:30px;
-      border-radius:12px;
-      box-shadow:0 0 20px rgba(0,0,0,0.4);
-    }
-
-    h2 { text-align:center; }
-
-    hr { border:1px solid #660000; margin:20px 0; }
-
-    .qr-section {
-      text-align:center;
-      margin-top:30px;
-    }
-
-    .btn-group {
-      margin-top:15px;
-    }
-
-    button {
-      padding:10px 16px;
-      margin:6px;
-      border:none;
-      border-radius:6px;
-      background:#660000;
-      color:white;
-      cursor:pointer;
-    }
-
-    button:hover {
-      opacity:0.85;
-    }
-  </style>
+  <title>Medical Identification Profile</title>
 </head>
 
-<body>
+<body style="background:#1A1110;color:white;font-family:Arial;padding:30px;">
 
-<div class="container">
+<h2>Medical Identification Profile</h2>
 
-  <h2>Medical Identification Profile</h2>
+<div id="profileData"></div>
 
-  <div id="profileData"></div>
+<h3>Your QR Code</h3>
+<div id="qrcode"></div>
 
-  <div class="qr-section">
-    <div id="qrcode"></div>
+<br><br>
+<button onclick="generateNewQR()">Generate New QR</button>
+<button onclick="downloadQR()">Download QR</button>
+<button onclick="editProfile()">Edit Profile</button>
+<button onclick="logout()">Logout</button>
 
-    <div class="btn-group">
-      <button onclick="downloadQR()">Download QR</button>
-      <button onclick="generateNewQR()">Generate New QR</button>
-      <button onclick="editProfile()">Edit Profile</button>
-      <button onclick="logout()">Logout</button>
-    </div>
-  </div>
-
-</div>
-
-<script src="../js/profile.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="/js/profile.js"></script>
 
 </body>
 </html>

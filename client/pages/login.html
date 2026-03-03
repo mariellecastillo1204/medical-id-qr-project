@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Medical Identification Login</title>
-
+  <title>Medical Identification - Login</title>
   <style>
     body {
       margin:0;
@@ -21,7 +20,6 @@
       width:380px;
       text-align:center;
       color:white;
-      box-shadow:0 0 20px rgba(0,0,0,0.5);
     }
 
     input {
@@ -43,21 +41,14 @@
       font-weight:bold;
     }
 
-    button:hover {
-      opacity:0.85;
-    }
-
-    a {
-      color:white;
-      font-size:14px;
-    }
+    button:hover { opacity:0.85; }
+    a { color:white; font-size:14px; }
   </style>
 </head>
-
 <body>
 
 <div class="card">
-  <h2>Medical Identification System</h2>
+  <h2>Medical Identification Login</h2>
 
   <form id="loginForm">
     <input id="email" type="email" placeholder="Email" required>
@@ -65,41 +56,46 @@
     <button type="submit">Login</button>
   </form>
 
-  <p><a href="pages/signup.html">Create Account</a></p>
+  <p><a href="/pages/signup.html">Create Account</a></p>
 </div>
 
 <script>
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const emailValue = document.getElementById("email").value;
+  const passwordValue = document.getElementById("password").value;
 
   const res = await fetch("/api/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ email: emailValue, password: passwordValue })
   });
 
   const data = await res.json();
 
-  if (!data.token) {
-    alert(data.message);
+  if (!res.ok || !data.token) {
+    alert(data.message || "Login failed");
     return;
   }
 
   localStorage.setItem("token", data.token);
 
   const profileRes = await fetch("/api/profile", {
-    headers: { Authorization: data.token }
+    headers:{ Authorization: "Bearer " + data.token }
   });
+
+  if (profileRes.status === 404) {
+    window.location.href="/pages/dashboard.html";
+    return;
+  }
 
   const profileData = await profileRes.json();
 
   if (profileData && profileData._id) {
-   window.location.href = "pages/profile.html";
+    window.location.href="/pages/profile.html";
   } else {
-    window.location.href = "pages/dashboard.html";
+    window.location.href="/pages/dashboard.html";
   }
 });
 </script>
