@@ -49,6 +49,9 @@ const medicalProfileSchema = new mongoose.Schema({
   emergencyRelationship: String,
   emergencyContactNumber: String,
 
+  height: String,
+  weight: String,
+
   allergies: String,
   medications: String,
   medicalConditions: String,
@@ -62,7 +65,7 @@ const medicalProfileSchema = new mongoose.Schema({
 const MedicalProfile = mongoose.model("MedicalProfile", medicalProfileSchema);
 
 /* =======================
-   AUTH MIDDLEWARE (FIXED)
+   AUTH MIDDLEWARE
 ======================= */
 
 const authMiddleware = (req, res, next) => {
@@ -80,7 +83,7 @@ const authMiddleware = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
-  } catch (err) {
+  } catch {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
@@ -132,22 +135,34 @@ app.post("/api/auth/login", async (req, res) => {
 });
 
 /* =======================
-   CREATE OR UPDATE PROFILE
+   CREATE OR UPDATE PROFILE (FIXED)
 ======================= */
 
 app.post("/api/profile", authMiddleware, async (req, res) => {
+
+  const allowedFields = [
+    "firstName","middleName","lastName","sex","dob","bloodType","contactNumber","religion",
+    "emergencyFirstName","emergencyMiddleName","emergencyLastName","emergencyRelationship","emergencyContactNumber",
+    "height","weight",
+    "allergies","medications","medicalConditions","pastIllness","familyHistory",
+    "philhealth","hmo"
+  ];
 
   let profile = await MedicalProfile.findOne({ user: req.user.id });
 
   if (!profile) {
     profile = new MedicalProfile({
-      ...req.body,
       user: req.user.id,
       qrToken: crypto.randomBytes(16).toString("hex")
     });
-  } else {
-    Object.assign(profile, req.body);
   }
+
+  // Only update allowed fields
+  allowedFields.forEach(field => {
+    if (req.body[field] !== undefined) {
+      profile[field] = req.body[field];
+    }
+  });
 
   await profile.save();
 
@@ -208,7 +223,6 @@ app.get("/public-profile/:token", async (req, res) => {
     <style>
       body {
         margin:0;
-        padding:0;
         background:#58111A;
         font-family:Arial;
         color:white;
@@ -217,71 +231,53 @@ app.get("/public-profile/:token", async (req, res) => {
         align-items:center;
         min-height:100vh;
       }
-
       .card {
         background:#3D0C02;
         padding:40px;
         border-radius:12px;
-        width:500px;
-        box-shadow:0 0 20px rgba(0,0,0,0.6);
+        width:520px;
       }
-
-      h2 {
-        text-align:center;
-        margin-bottom:25px;
-      }
-
-      p {
-        margin:8px 0;
-      }
-
-      strong {
-        color:#ffcccc;
-      }
-
-      hr {
-        border:0;
-        height:1px;
-        background:#660000;
-        margin:20px 0;
-      }
+      h2 { text-align:center; }
+      p { margin:6px 0; }
+      strong { color:#ffcccc; }
+      hr { background:#660000; border:0; height:1px; margin:18px 0; }
     </style>
   </head>
   <body>
+    <div class="card">
+      <h2>Medical Identification Profile</h2>
 
-  <div class="card">
-    <h2>Medical Identification Profile</h2>
+      <p><strong>Name:</strong> ${profile.firstName} ${profile.middleName || ""} ${profile.lastName}</p>
+      <p><strong>Sex:</strong> ${profile.sex}</p>
+      <p><strong>DOB:</strong> ${profile.dob?.toDateString()}</p>
+      <p><strong>Blood Type:</strong> ${profile.bloodType}</p>
+      <p><strong>Height:</strong> ${profile.height || "N/A"} inches</p>
+      <p><strong>Weight:</strong> ${profile.weight || "N/A"} kg</p>
+      <p><strong>Contact:</strong> ${profile.contactNumber}</p>
+      <p><strong>Religion:</strong> ${profile.religion}</p>
 
-    <p><strong>Name:</strong> ${profile.firstName} ${profile.middleName || ""} ${profile.lastName}</p>
-    <p><strong>Sex:</strong> ${profile.sex}</p>
-    <p><strong>Date of Birth:</strong> ${profile.dob?.toDateString()}</p>
-    <p><strong>Blood Type:</strong> ${profile.bloodType}</p>
-    <p><strong>Contact:</strong> ${profile.contactNumber}</p>
-    <p><strong>Religion:</strong> ${profile.religion}</p>
+      <hr>
 
-    <hr>
+      <h3>Emergency Contact</h3>
+      <p>${profile.emergencyFirstName} ${profile.emergencyMiddleName || ""} ${profile.emergencyLastName}</p>
+      <p>${profile.emergencyRelationship}</p>
+      <p>${profile.emergencyContactNumber}</p>
 
-    <h3>Emergency Contact</h3>
-    <p>${profile.emergencyFirstName} ${profile.emergencyMiddleName || ""} ${profile.emergencyLastName}</p>
-    <p>${profile.emergencyRelationship}</p>
-    <p>${profile.emergencyContactNumber}</p>
+      <hr>
 
-    <hr>
+      <h3>Medical Information</h3>
+      <p><strong>Allergies:</strong> ${profile.allergies}</p>
+      <p><strong>Medications:</strong> ${profile.medications}</p>
+      <p><strong>Conditions:</strong> ${profile.medicalConditions}</p>
+      <p><strong>Past Illness:</strong> ${profile.pastIllness || "N/A"}</p>
+      <p><strong>Family History:</strong> ${profile.familyHistory || "N/A"}</p>
 
-    <h3>Medical Information</h3>
-    <p><strong>Allergies:</strong> ${profile.allergies}</p>
-    <p><strong>Medications:</strong> ${profile.medications}</p>
-    <p><strong>Conditions:</strong> ${profile.medicalConditions}</p>
-    <p><strong>Past Illness:</strong> ${profile.pastIllness || "N/A"}</p>
-    <p><strong>Family History:</strong> ${profile.familyHistory || "N/A"}</p>
+      <hr>
 
-    <hr>
-
-    <h3>Insurance</h3>
-    <p><strong>PhilHealth:</strong> ${profile.philhealth || "N/A"}</p>
-    <p><strong>HMO:</strong> ${profile.hmo || "N/A"}</p>
-  </div>
-
+      <h3>Insurance</h3>
+      <p><strong>PhilHealth:</strong> ${profile.philhealth || "N/A"}</p>
+      <p><strong>HMO:</strong> ${profile.hmo || "N/A"}</p>
+    </div>
   </body>
   </html>
   `);
