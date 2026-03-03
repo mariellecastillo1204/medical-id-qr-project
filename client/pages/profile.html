@@ -2,22 +2,70 @@
 <html>
 <head>
   <title>Medical Identification Profile</title>
+  <style>
+    body {
+      margin:0;
+      background:#58111A;
+      font-family:Arial;
+      color:white;
+      padding:40px;
+    }
+
+    .container {
+      max-width:700px;
+      margin:auto;
+      background:#3D0C02;
+      padding:30px;
+      border-radius:12px;
+    }
+
+    h2 {
+      text-align:center;
+      margin-bottom:20px;
+    }
+
+    .section {
+      margin-bottom:20px;
+    }
+
+    button {
+      padding:10px 15px;
+      margin:5px 5px 0 0;
+      background:#660000;
+      color:white;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-weight:bold;
+    }
+
+    button:hover {
+      opacity:0.85;
+    }
+
+    canvas {
+      margin-top:15px;
+    }
+  </style>
 </head>
 
-<body style="background:#1A1110;color:white;font-family:Arial;padding:30px;">
+<body>
 
-<h2>Medical Identification Profile</h2>
+<div class="container">
+  <h2>Medical Identification Profile</h2>
 
-<div id="profileData"></div>
+  <div id="profileData"></div>
 
-<h3>Your QR Code</h3>
-<div id="qrcode"></div>
+  <div class="section">
+    <h3>Your QR Code</h3>
+    <div id="qrcode"></div>
+  </div>
 
-<br><br>
-<button onclick="generateNewQR()">Generate New QR</button>
-<button onclick="downloadQR()">Download QR</button>
-<button onclick="editProfile()">Edit Profile</button>
-<button onclick="logout()">Logout</button>
+  <button onclick="generateNewQR()">Generate New QR</button>
+  <button onclick="downloadQR()">Download QR</button>
+  <button onclick="editProfile()">Edit Profile</button>
+  <button onclick="logout()">Logout</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="/js/profile.js"></script>

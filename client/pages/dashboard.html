@@ -1,230 +1,174 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Medical Identification Dashboard</title>
-
+  <title>Medical Identification - Edit Profile</title>
   <style>
-  :root {
-    --licorice: #1A1110;
-    --blood-red: #660000;
-    --black-bean: #3D0C02;
-    --chocolate-cosmos: #58111A;
-    --white: #ffffff;
-  }
+    body {
+      margin:0;
+      background:#58111A;
+      font-family:Arial;
+      color:white;
+      padding:30px;
+    }
 
-  body {
-    font-family: Arial, sans-serif;
-    background: var(--licorice);
-    margin: 0;
-    padding: 0;
-    color: var(--white);
-  }
+    .container {
+      max-width:700px;
+      margin:auto;
+      background:#3D0C02;
+      padding:30px;
+      border-radius:12px;
+    }
 
-  .container {
-    max-width: 900px;
-    margin: 40px auto;
-    background: var(--black-bean);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.6);
-  }
+    h2 {
+      text-align:center;
+      margin-bottom:20px;
+    }
 
-  h2 {
-    text-align: center;
-    color: var(--blood-red);
-  }
+    input, select, textarea {
+      width:100%;
+      padding:10px;
+      margin:8px 0;
+      border:none;
+      border-radius:6px;
+    }
 
-  h3 {
-    margin-top: 30px;
-    color: var(--blood-red);
-  }
+    button {
+      width:100%;
+      padding:12px;
+      margin-top:15px;
+      background:#660000;
+      color:white;
+      border:none;
+      border-radius:6px;
+      font-weight:bold;
+      cursor:pointer;
+    }
 
-  .note {
-    font-size: 14px;
-    color: #ccc;
-    margin-bottom: 15px;
-  }
-
-  .form-group {
-    margin-bottom: 15px;
-  }
-
-  label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  .required {
-    color: var(--blood-red);
-  }
-
-  input, textarea, select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid var(--chocolate-cosmos);
-    background: var(--licorice);
-    color: var(--white);
-  }
-
-  input:focus, textarea:focus, select:focus {
-    outline: none;
-    border: 1px solid var(--blood-red);
-  }
-
-  button {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-top: 20px;
-    background: var(--blood-red);
-    color: var(--white);
-  }
-
-  button:hover {
-    opacity: 0.85;
-  }
-
+    button:hover {
+      opacity:0.85;
+    }
   </style>
 </head>
 
 <body>
 
 <div class="container">
-  <h2>Medical Identification Dashboard</h2>
+  <h2>Edit Medical Identification Profile</h2>
 
-  <form id="medicalForm">
+  <form id="profileForm">
 
-    <h3>Personal Information</h3>
+    <input id="firstName" placeholder="First Name" required>
+    <input id="middleName" placeholder="Middle Name">
+    <input id="lastName" placeholder="Last Name" required>
 
-    <div class="form-group">
-      <label>First Name <span class="required">*</span></label>
-      <input type="text" id="firstName" required>
-    </div>
+    <select id="sex">
+      <option value="">Select Sex</option>
+      <option>Male</option>
+      <option>Female</option>
+    </select>
 
-    <div class="form-group">
-      <label>Middle Name (Optional)</label>
-      <input type="text" id="middleName">
-    </div>
+    <input type="date" id="dob">
+    <input id="bloodType" placeholder="Blood Type">
+    <input id="contactNumber" placeholder="Contact Number">
+    <input id="religion" placeholder="Religion">
 
-    <div class="form-group">
-      <label>Last Name <span class="required">*</span></label>
-      <input type="text" id="lastName" required>
-    </div>
+    <hr>
 
-    <div class="form-group">
-      <label>Sex <span class="required">*</span></label>
-      <select id="sex" required>
-        <option value="">Select Sex</option>
-        <option>Male</option>
-        <option>Female</option>
-        <option>Prefer not to say</option>
-      </select>
-    </div>
+    <input id="emergencyFirstName" placeholder="Emergency First Name">
+    <input id="emergencyMiddleName" placeholder="Emergency Middle Name">
+    <input id="emergencyLastName" placeholder="Emergency Last Name">
+    <input id="emergencyRelationship" placeholder="Relationship">
+    <input id="emergencyContactNumber" placeholder="Emergency Contact Number">
 
-    <div class="form-group">
-      <label>Date of Birth <span class="required">*</span></label>
-      <input type="date" id="dob" required>
-    </div>
+    <hr>
 
-    <div class="form-group">
-      <label>Blood Type <span class="required">*</span></label>
-      <select id="bloodType" required>
-        <option value="">Select Blood Type</option>
-        <option>A+</option><option>A-</option>
-        <option>B+</option><option>B-</option>
-        <option>AB+</option><option>AB-</option>
-        <option>O+</option><option>O-</option>
-      </select>
-    </div>
+    <textarea id="allergies" placeholder="Allergies"></textarea>
+    <textarea id="medications" placeholder="Medications"></textarea>
+    <textarea id="medicalConditions" placeholder="Medical Conditions"></textarea>
+    <textarea id="pastIllness" placeholder="Past Illness"></textarea>
+    <textarea id="familyHistory" placeholder="Family History"></textarea>
 
-    <div class="form-group">
-      <label>Contact Number <span class="required">*</span></label>
-      <input type="text" id="contactNumber" required>
-    </div>
+    <hr>
 
-    <div class="form-group">
-      <label>Religion <span class="required">*</span></label>
-      <input type="text" id="religion" required>
-    </div>
+    <input id="philhealth" placeholder="PhilHealth">
+    <input id="hmo" placeholder="HMO">
 
-    <h3>Emergency Contact</h3> 
-
-    <div class="form-group">
-      <label>Emergency Contact First Name <span class="required">*</span></label>
-      <input type="text" id="emergencyFirstName" required>
-    </div>
-
-    <div class="form-group">
-      <label>Emergency Contact Middle Name (Optional)</label>
-      <input type="text" id="emergencyMiddleName">
-    </div>
-
-    <div class="form-group">
-      <label>Emergency Contact Last Name <span class="required">*</span></label>
-      <input type="text" id="emergencyLastName" required>
-    </div>
-
-    <div class="form-group">
-      <label>Relationship <span class="required">*</span></label>
-      <input type="text" id="relationship" required>
-    </div>
-
-    <div class="form-group">
-      <label>Emergency Contact Number <span class="required">*</span></label>
-      <input type="text" id="emergencyContactNumber" required>
-    </div>
-
-    <h3>Medical Information</h3>
-    <div class="note">If not applicable, enter "N/A"</div>
-
-    <div class="form-group">
-      <label>Allergies <span class="required">*</span></label>
-      <textarea id="allergies" required></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>Maintenance / Prescription Medications <span class="required">*</span></label>
-      <textarea id="medications" required></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>Medical Conditions <span class="required">*</span></label>
-      <textarea id="medicalConditions" required></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>Past Illness (Optional)</label>
-      <textarea id="pastIllness"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>Family Medical History (Optional)</label>
-      <textarea id="familyHistory"></textarea>
-    </div>
-
-    <h3>Insurance / Benefits</h3>
-    <div class="note">If not applicable, enter "N/A"</div>
-
-    <div class="form-group">
-      <label>PhilHealth ID Number</label>
-      <input type="text" id="philhealth">
-    </div>
-
-    <div class="form-group">
-      <label>HMO / Health Insurance Provider</label>
-      <input type="text" id="hmo">
-    </div>
-
-    <button type="submit">Save & View Profile</button>
-
+    <button type="submit">Save Profile</button>
   </form>
+
+  <button onclick="goProfile()">Back to Profile</button>
+  <button onclick="logout()">Logout</button>
+
 </div>
 
-<script src="../js/dashboard.js"></script>
+<script>
+const token = localStorage.getItem("token");
+
+if (!token) {
+  window.location.href = "/pages/login.html";
+}
+
+/* LOAD EXISTING PROFILE */
+window.onload = async () => {
+  const res = await fetch("/api/profile", {
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  if (res.status === 404) return;
+
+  const data = await res.json();
+
+  if (!data || !data._id) return;
+
+  for (const key in data) {
+    if (document.getElementById(key)) {
+      document.getElementById(key).value =
+        key === "dob" && data[key]
+          ? new Date(data[key]).toISOString().split("T")[0]
+          : data[key];
+    }
+  }
+};
+
+/* SAVE PROFILE */
+document.getElementById("profileForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = {};
+
+  document.querySelectorAll("input, select, textarea").forEach(el => {
+    formData[el.id] = el.value;
+  });
+
+  const res = await fetch("/api/profile", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token
+    },
+    body: JSON.stringify(formData)
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    alert(data.message || "Error saving profile");
+    return;
+  }
+
+  alert("Profile updated successfully!");
+  window.location.href = "/pages/profile.html";
+});
+
+function goProfile() {
+  window.location.href = "/pages/profile.html";
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "/pages/login.html";
+}
+</script>
 
 </body>
 </html>
