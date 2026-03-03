@@ -237,9 +237,9 @@ app.get("/public-profile/:token", async (req, res) => {
     <p><strong>Sex:</strong> ${profile.sex || "N/A"}</p>
    <p><strong>Date of Birth:</strong> ${
   profile.dob 
-    ? new Date(profile.dob).toLocaleDateString("en-US") 
-  
-}</p>"N/A"}</p>
+    ? new Date(profile.dob).toLocaleDateString("en-US")
+    : ""
+}</p>
     <p><strong>Blood Type:</strong> ${profile.bloodType || "N/A"}</p>
     <p><strong>Contact:</strong> ${profile.contactNumber || "N/A"}</p>
     <p><strong>Religion:</strong> ${profile.religion || "N/A"}</p>
