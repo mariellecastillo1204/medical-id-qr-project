@@ -1,5 +1,5 @@
 const token = localStorage.getItem("token");
-if (!token) window.location.href = "login.html";
+if (!token) window.location.href = "pages/login.html";
 
 let currentProfileID = null;
 
@@ -10,8 +10,9 @@ window.onload = async () => {
   });
 
   const data = await res.json();
+
   if (!data || !data._id) {
-    window.location.href = "dashboard.html";
+    window.location.href = "pages/dashboard.html";
     return;
   }
 
@@ -31,24 +32,24 @@ window.onload = async () => {
     <hr>
 
     <h3>Emergency Contact</h3>
-    <p><strong>Name:</strong> ${data.emergencyFirstName} ${data.emergencyMiddleName || ""} ${data.emergencyLastName}</p>
-    <p><strong>Relationship:</strong> ${data.relationship}</p>
-    <p><strong>Contact:</strong> ${data.emergencyContactNumber}</p>
+    <p>${data.emergencyFirstName} ${data.emergencyLastName}</p>
+    <p>${data.relationship}</p>
+    <p>${data.emergencyContactNumber}</p>
 
     <hr>
 
     <h3>Medical Information</h3>
-    <p><strong>Allergies:</strong> ${data.allergies}</p>
-    <p><strong>Medications:</strong> ${data.medications}</p>
-    <p><strong>Conditions:</strong> ${data.medicalConditions}</p>
-    <p><strong>Past Illness:</strong> ${data.pastIllness || "N/A"}</p>
-    <p><strong>Family History:</strong> ${data.familyHistory || "N/A"}</p>
+    <p>Allergies: ${data.allergies}</p>
+    <p>Medications: ${data.medications}</p>
+    <p>Conditions: ${data.medicalConditions}</p>
+    <p>Past Illness: ${data.pastIllness || "N/A"}</p>
+    <p>Family History: ${data.familyHistory || "N/A"}</p>
 
     <hr>
 
     <h3>Insurance</h3>
-    <p><strong>PhilHealth:</strong> ${data.philhealth || "N/A"}</p>
-    <p><strong>HMO:</strong> ${data.hmo || "N/A"}</p>
+    <p>PhilHealth: ${data.philhealth || "N/A"}</p>
+    <p>HMO: ${data.hmo || "N/A"}</p>
   `;
 
   generateQR();
@@ -73,7 +74,7 @@ function downloadQR() {
 }
 
 function generateNewQR() {
-  alert("New QR generated (visual refresh only for now)");
+  alert("QR refreshed.");
   generateQR();
 }
 
